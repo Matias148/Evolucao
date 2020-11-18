@@ -6,7 +6,7 @@ public class Main {
         Ambiente ambiente = new Ambiente(100);
 
         ambiente.imprimirDados();
-        for (int i = 0;i<10;i++){
+        for (int i = 0;i<20;i++){
             Individuo indi = new Individuo();
             //System.out.println(indi.getForca());
             ambiente.add(indi);
@@ -14,11 +14,8 @@ public class Main {
 
         ambiente.start();
 
-        while (true) {
-            if (ambiente.size() <= 1){
-                ambiente.imprimirIndividuos();
-                break;
-            }
+        //ambiente.imprimirIndividuos();
+        while (ambiente.size() > 1) {
             //ambiente.imprimirIndividuos();
             Thread.sleep(1000);
         }

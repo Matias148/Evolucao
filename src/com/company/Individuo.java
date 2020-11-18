@@ -9,16 +9,25 @@ public class Individuo {
     private int tempVariacao;
     private int sexo = 1;
     private int comidaNecessaria;
+    private int testesMorte = 0;
+
+    public int getTestesMorte() {
+        return testesMorte;
+    }
+
+    public void setTestesMorte(int testesMorte) {
+        this.testesMorte = testesMorte;
+    }
 
     public void setForca(int forca) {
         this.forca = forca;
     }
 
     public Individuo(){
-        forca = gerarRandom(100);
-        tempAmbiente = gerarRandom(100);
+        forca = Util.gerarRandom(100);
+        tempAmbiente = Util.gerarRandom(100);
         temperatura = sexo();
-        tempVariacao = gerarRandom(100);
+        tempVariacao = Util.gerarRandom(100);
         sexo = sexo();
         comidaNecessaria = comida();
     }
@@ -32,6 +41,13 @@ public class Individuo {
         comidaNecessaria = comida();
     }
 
+    public void evoluir(){
+        forca += Util.gerarRandom(5);
+        tempAmbiente += Util.gerarRandom(5);
+        tempVariacao += Util.gerarRandom(5);
+        comidaNecessaria = comida();
+    }
+
     private int sexo(){
         Random gera = new Random();
         return gera.nextInt(2)+1;
@@ -40,11 +56,6 @@ public class Individuo {
     public int comida(){
         int aux = forca+tempAmbiente+tempVariacao;
         return aux/3;
-    }
-
-    private int gerarRandom(int max){
-        Random gera = new Random();
-        return gera.nextInt(max+1);
     }
 
     public void setComidaNecessaria(int comidaNecessaria) {

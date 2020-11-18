@@ -11,39 +11,46 @@ public class Ambiente extends Thread{
 
     public Ambiente(int populacao){
         moradores = new Individuo[populacao];
-        this.tempAmbiente = gerarRandom(100);
+        this.tempAmbiente = Util.gerarRandom(100);
         this.temperatura = 1;
-        this.comidaDisponivel = gerarRandom(1000);
+        this.comidaDisponivel = Util.gerarRandom(1000)+5000;
     }
 
     public void imprimirIndividuos(){
         for (int i = 0;i<size();i++){
             if (moradores[i]!=null)
-            System.out.println("    "+moradores[i].getForca());
+            System.out.println("    força:"+moradores[i].getForca()+" tempAmbiente:"+moradores[i].getTempAmbiente()+" " +
+                    "variaçao:"+moradores[i].getTempVariacao()+" tipoTemp:"+moradores[i].getTemperatura());
         }
     }
 
     public void imprimirDados(){
-        System.out.println("temperatura Ambiente:"+tempAmbiente+" Temperatura Tipo:"+temperatura+
+        System.out.println("temperaturaAmbiente:"+tempAmbiente+" TemperaturaTipo:"+temperatura+
                 " Comida:"+comidaDisponivel+" individuos:"+size());
     }
 
     @Override
     public void run(){
-        while (size()>0 && comidaDisponivel < 10000){
+        while (size()>15 && comidaDisponivel < 10000){
             if (!alterando) {
+                imprimirDados();
                 alterando = true;
                 for (Individuo i : moradores) {
                     if (i != null) {
                         if (i.getComidaNecessaria() > comidaDisponivel) {
-                            remove(i);
+                            i.setTestesMorte(i.getTestesMorte()+1);
+                            if (i.getTestesMorte() == 3 || !sobrevive(i)) {
+                                remove(i);
+                            }
                         } else {
                             comidaDisponivel -= i.getComidaNecessaria();
-                            i.setForca(i.getForca()+1);
-                            i.setComidaNecessaria(i.comida());
+                            i.evoluir();
+//                            i.setForca(i.getForca()+1);
+//                            i.setComidaNecessaria(i.comida());
                         }
                     }
-                    int reprodutor = gerarRandom(size());
+                    int reprodutor = Util.gerarRandom(size());
+                    if (reprodutor==size() && size()>0){reprodutor--;}
                     if (moradores[reprodutor] != null && i != null) {
                         if ((i.getSexo() == 1 && moradores[reprodutor].getSexo() == 2) ||
                                 (i.getSexo() == 2 && moradores[reprodutor].getSexo() == 1)) {
@@ -53,9 +60,41 @@ public class Ambiente extends Thread{
                 }
                 alterando = false;
             }
-            this.comidaDisponivel += gerarRandom(100);
-            imprimirDados();
+            if (Util.chance(10)){
+                if (this.temperatura == 1){
+                    this.temperatura = 2;
+                }else{
+                    this.temperatura = 1;
+                }
+            }
+            this.tempAmbiente += aumentaTemp();
+            this.comidaDisponivel += Util.gerarRandom(100);
         }
+        imprimirIndividuos();
+    }
+
+    public int aumentaTemp(){
+        if (Util.gerarRandom(1) == 1){
+            return Util.gerarRandom(10);
+        }else{
+            return -Util.gerarRandom(10);
+        }
+    }
+
+    public boolean sobrevive(Individuo individuo){
+        if (individuo.getTemperatura() != temperatura){
+            if (Util.chance(30)) {
+                return true;
+            }
+            return false;
+        }
+        if (getTempAmbiente() > individuo.getTempAmbiente()+individuo.getTempVariacao()){
+            return false;
+        }
+        if (getTempAmbiente() < individuo.getTempAmbiente()-individuo.getTempVariacao()){
+            return false;
+        }
+        return true;
     }
 
     private Individuo reproduzir(Individuo pai, Individuo mae){
@@ -92,11 +131,6 @@ public class Ambiente extends Thread{
 
     public int getTemperatura() {
         return temperatura;
-    }
-
-    private int gerarRandom(int max){
-        Random gera = new Random();
-        return gera.nextInt(max+1);
     }
 
     public int getTempAmbiente() {
